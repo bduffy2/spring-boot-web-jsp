@@ -1,0 +1,71 @@
+buildscript {
+	ext {
+		//springBootVersion = '1.4.2.RELEASE'
+		springBootVersion = '1.5.2.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+		maven { url 'http://nexus.stillwaterinsurance.com/content/repositories/stillwater-release' }
+		maven { url 'http://repo.spring.io/libs-release' }
+		maven { url 'https://plugins.gradle.org/m2' }
+		
+		//required for cargo and jshint
+		jcenter()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.1'
+		classpath 'com.stillwaterinsurance:gradle-gerrit-plugin:+'
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'spring-boot'
+apply plugin: 'cargo'
+apply plugin: 'groovy'
+apply plugin: 'stillwatereclipse'
+apply plugin: 'gerrit'
+
+archivesBaseName = 'hello-world'
+group = 'com.stillwaterinsurance'
+
+if(hasProperty('releaseVersion')){
+	if ((releaseVersion == '${org.gradle.project.releaseVersion}') || (releaseVersion == '')){
+		throw new InvalidUserDataException("Release Version not set.")
+	}
+	
+	version = releaseVersion
+} else {
+	version = '9999.9.9-SNAPSHOT'
+}
+
+//war {
+//	baseName = 'hello-world'
+//	version = '0.0.1-rc'
+//}
+
+description = """Stillwater Hello World"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+stillwatereclipse {
+	contextPath = '/hello-world'
+	deployName = 'HelloWorld'
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-tomcat')
+	
+	compile "javax.servlet:jstl:1.2"
+	compile "jstl:jstl:1.2"
+	
+	testCompile('org.springframework.boot:spring-boot-starter-test') 
+}
+
